@@ -1,26 +1,33 @@
 import { useState } from "react";
-import Form from "./components/Form.jsx";
+import CreateMessage from "./components/CreateMessage";
+import MessageList from "./components/MessageList";
 
-function App() {
+export default function App() {
   const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([]);
 
-  const handleChange = (e) => {
-    setMessage(e.target.value);
-  };
-
-  const handleSubmit = (e) => {
+  function handleSubmit(e) {
     e.preventDefault();
-    console.log("Submitted message:", message);
+
+    if (message.length < 5 || message.length > 140) return;
+
+    setMessages([{ text: message, date: new Date() }, ...messages]);
     setMessage("");
-  };
+  }
 
   return (
-    <div className="container">
-      <h1>Happy Thoughts</h1>
+    <main className="min-h-screen bg-appBg flex justify-center font-mono">
+      <section className="w-full max-w-xl px-4">
+        <h1 className="text-center text-2xl font-bold my-4">Happy Thoughts</h1>
 
-      <Form message={message} onChange={handleChange} onSubmit={handleSubmit} />
-    </div>
+        <CreateMessage
+          message={message}
+          setMessage={setMessage}
+          onSubmit={handleSubmit}
+        />
+
+        <MessageList messages={messages} />
+      </section>
+    </main>
   );
 }
-
-export default App;
