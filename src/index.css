@@ -1,7 +1,11 @@
 @import "tailwindcss";
-@import "tailwindcss/preflight";
-@import "tailwindcss/utilities";
 
 body {
-  background-color: #ffffff;
+  margin: 0;
+  background-color: #ffe6ec;
+  font-family: "Roboto Mono", monospace;
+}
+
+textarea {
+  background-color: white !important;
 }
