@@ -1,5 +1,3 @@
-/*fixa färgen på knappen*/
-
 import Card from "./Card";
 
 export default function CreateMessage({ message, setMessage, onSubmit }) {
@@ -17,7 +15,6 @@ export default function CreateMessage({ message, setMessage, onSubmit }) {
 
         <textarea
           rows="3"
-          /*maxLength={maxLength}*/
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="My happy thought is..."

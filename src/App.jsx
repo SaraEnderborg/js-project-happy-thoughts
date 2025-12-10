@@ -1,24 +1,84 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CreateMessage from "./components/CreateMessage";
 import MessageList from "./components/MessageList";
+import MessageCard from "./components/MessageCard";
 
 export default function App() {
   console.log("APP.JSX HERE");
 
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  console.log("MESSAGES:", messages);
+  const [loading, setLoading] = useState(true);
 
-  function handleSubmit(e) {
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const response = await fetch(
+          "https://happy-thoughts-api-4ful.onrender.com/thoughts"
+        );
+        const data = await response.json();
+        setMessages(data);
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMessages();
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("SUBMIT CLICKED");
 
     if (message.length < 5 || message.length > 140) return;
 
-    setMessages((prev) => [{ text: message, date: new Date() }, ...prev]);
+    try {
+      const response = await fetch(
+        "https://happy-thoughts-api-4ful.onrender.com/thoughts",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ message }),
+        }
+      );
 
-    setMessage("");
-  }
+      const newMessage = await response.json();
+
+      setMessages((prev) => [newMessage, ...prev]);
+
+      setMessage("");
+    } catch (error) {
+      console.error("Error posting message:", error);
+    }
+  };
+
+  const handleLike = async (Id) => {
+    try {
+      const response = await fetch(
+        `https://happy-thoughts-api-4ful.onrender.com/thoughts/${Id}/like`,
+        {
+          method: "POST",
+        }
+      );
+      const updatedMessage = await response.json();
+
+      // Loopa igenom alla meddelanden.
+      // Om rätt post hittas → ersätt den med den nya från servern.
+      // Annars → låt den vara orörd.
+
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg._id === updatedMessage._id ? updatedMessage : msg
+        )
+      );
+    } catch (error) {
+      console.error("Error liking message:", error);
+    }
+  };
 
   return (
     <main className="min-h-screen flex justify-center font-mono">
@@ -29,8 +89,11 @@ export default function App() {
             setMessage={setMessage}
             onSubmit={handleSubmit}
           />
-
-          <MessageList messages={messages} />
+          {loading ? (
+            <p className="text-center text-gray-500">Loading messages...</p>
+          ) : (
+            <MessageList messages={messages} onLike={handleLike} />
+          )}
         </div>
       </section>
     </main>
