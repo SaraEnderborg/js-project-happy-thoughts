@@ -25,3 +25,4 @@ const MessageCard = ({ message, onLike }) => {
     </Card>
   );
 };
+export default MessageCard;

@@ -1,7 +1,7 @@
 import MessageCard from "./MessageCard";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function MessageList({ messages, onLike }) {
+const MessageList = ({ messages, onLike }) => {
   return (
     <div className="mt-10 flex flex-col gap-6">
       <AnimatePresence>
@@ -19,4 +19,5 @@ export default function MessageList({ messages, onLike }) {
       </AnimatePresence>
     </div>
   );
-}
+};
+export default MessageList;

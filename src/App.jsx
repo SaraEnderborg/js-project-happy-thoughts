@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import CreateMessage from "./components/CreateMessage";
 import MessageList from "./components/MessageList";
-import MessageCard from "./components/MessageCard";
 
 export default function App() {
   console.log("APP.JSX HERE");

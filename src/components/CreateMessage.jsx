@@ -14,6 +14,9 @@ export default function CreateMessage({ message, setMessage, onSubmit }) {
         </h2>
 
         <textarea
+          id="message"
+          name="message"
+          aria-label="Your happy thought"
           rows="3"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
