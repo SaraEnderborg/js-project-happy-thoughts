@@ -1,10 +1,11 @@
 import Card from "./Card";
 
-export default function CreateMessage({ message, setMessage, onSubmit }) {
-  const maxLength = 140;
-  const isInvalid = message.length < 5 || message.length > maxLength;
-  const isTooLong = message.length > maxLength;
-  const remaining = maxLength - message.length;
+const MAX_LENGTH = 140;
+
+const CreateMessage = ({ message, setMessage, onSubmit }) => {
+  const isInvalid = message.length < 5 || message.length > MAX_LENGTH;
+  const isTooLong = message.length > MAX_LENGTH;
+  const remaining = MAX_LENGTH - message.length;
 
   return (
     <Card>
@@ -42,15 +43,14 @@ export default function CreateMessage({ message, setMessage, onSubmit }) {
 
         <button
           type="submit"
-          disabled={isInvalid}
           className={`
     mt-2 px-4 py-3 rounded-full font-semibold
     transition-all duration-200
     bg-[#ef9595]
       ${
         isInvalid
-          ? "opacity-50 cursor-not-allowed"
-          : "text-black shadow-md hover:brightness-110 hover:shadow-lg hover:-translate-y-0.5 active:scale-95"
+          ? "bg-gray-300 text-gray-600"
+          : "bg-[#ef9595] text-black shadow-md hover:brightness-110 hover:shadow-lg hover:-translate-y-0.5 active:scale-95"
       }
   `}
         >
@@ -59,4 +59,5 @@ export default function CreateMessage({ message, setMessage, onSubmit }) {
       </form>
     </Card>
   );
-}
+};
+export default CreateMessage;
