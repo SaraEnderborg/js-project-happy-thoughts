@@ -85,7 +85,7 @@ const App = () => {
   return (
     <main className="min-h-screen flex justify-center font-mono">
       <section className="w-full flex justify-center">
-        <div className="w-full max-w-[900px] px-4 space-y-10">
+        <div className="w-full max-w-[900px] px-4 pt-8 space-y-10">
           <CreateMessage
             message={message}
             setMessage={setMessage}

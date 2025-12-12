@@ -8,7 +8,7 @@ const CreateMessage = ({ message, setMessage, onSubmit }) => {
   const remaining = MAX_LENGTH - message.length;
 
   return (
-    <Card>
+    <Card backgroundColor="bg-[#f2f0f0]">
       <form onSubmit={onSubmit} className="px-8 py-6">
         <h2 className="text-2xl font-bold mb-4">
           What's making you happy right now?
