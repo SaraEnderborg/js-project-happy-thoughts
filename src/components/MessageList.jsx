@@ -1,7 +1,7 @@
 import MessageCard from "./MessageCard";
 import { motion } from "motion/react";
 
-const MessageList = ({ messages, onLike }) => {
+const MessageList = ({ messages, onLike, onDelete, onEdit }) => {
   return (
     <div className="mt-10 flex flex-col gap-6">
       {messages.map((message) => (
@@ -12,7 +12,12 @@ const MessageList = ({ messages, onLike }) => {
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
-          <MessageCard message={message} onLike={onLike} />
+          <MessageCard
+            message={message}
+            onLike={onLike}
+            onDelete={onDelete}
+            onEdit={onEdit}
+          />
         </motion.div>
       ))}
     </div>

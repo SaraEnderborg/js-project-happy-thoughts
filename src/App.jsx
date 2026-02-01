@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import CreateMessage from "./components/CreateMessage";
 import MessageList from "./components/MessageList";
 
+const API_URL = "https://happy-thoughts-api-11z5.onrender.com";
+
 const App = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
@@ -11,11 +13,19 @@ const App = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch(
-          "https://happy-thoughts-api-4ful.onrender.com/thoughts"
-        );
-        const data = await response.json();
-        setMessages(data);
+        const res = await fetch(`${API_URL}/thoughts?sort=createdAt`);
+        if (!res.ok) {
+          throw new Error("Failed to fetch messages");
+        }
+
+        const jsonRes = await res.json();
+
+        if (!jsonRes.success) {
+          console.error("an error occurred:", jsonRes.message);
+          return;
+        }
+
+        setMessages(jsonRes.response);
       } catch (error) {
         console.error("Error fetching messages:", error);
       } finally {
@@ -28,57 +38,106 @@ const App = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
     if (message.length < 5 || message.length > 140) {
       setError("Your message must be between 5 and 140 characters.");
       return;
     }
     try {
-      const response = await fetch(
-        "https://happy-thoughts-api-4ful.onrender.com/thoughts",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message }),
-        }
-      );
+      const res = await fetch(`${API_URL}/thoughts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      });
 
-      if (!response.ok) {
-        throw new Error("Failed to post Happy thought. Please try again.");
+      const jsonRes = await res.json();
+
+      if (!res.ok || !jsonRes.success) {
+        throw new Error(
+          jsonRes.message || "Failed to post Happy thought. Please try again.",
+        );
       }
 
-      const newMessage = await response.json();
+      const newMessage = jsonRes.response;
       setMessages((prev) => [newMessage, ...prev]);
       setMessage("");
     } catch (error) {
       console.error("Error posting message:", error);
       setError(
-        "Something wen't wrong posting your happy thought. Please try again."
+        "Something wen't wrong posting your happy thought. Please try again.",
       );
     }
   };
 
   const handleLike = async (id) => {
     try {
-      const response = await fetch(
-        `https://happy-thoughts-api-4ful.onrender.com/thoughts/${id}/like`,
-        {
-          method: "POST",
-        }
-      );
-      const updatedMessage = await response.json();
+      const res = await fetch(`${API_URL}/thoughts/${id}/like`, {
+        method: "PATCH",
+      });
+      const jsonRes = await res.json();
 
-      // Loopa igenom alla meddelanden.
-      // Om rätt post hittas → ersätt den med den nya från servern.
-      // Annars → låt den vara orörd.
+      if (!res.ok || !jsonRes.success) {
+        throw new Error(jsonRes.message || "Failed to like the message.");
+      }
+      const updatedMessage = jsonRes.response; //here is the thought with updated likes
 
       setMessages((prev) =>
         prev.map((msg) =>
-          msg._id === updatedMessage._id ? updatedMessage : msg
-        )
+          msg._id === updatedMessage._id ? updatedMessage : msg,
+        ),
       );
     } catch (error) {
       console.error("Error liking message:", error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch(`${API_URL}/thoughts/${id}`, {
+        method: "DELETE",
+      });
+      const jsonRes = await res.json();
+
+      if (!res.ok || !jsonRes.success) {
+        throw new Error(jsonRes.message || "Failed to delete the message.");
+      }
+
+      setMessages((prev) => prev.filter((msg) => msg._id !== id));
+    } catch (error) {
+      console.error("Error deleting message:", error);
+    }
+  };
+
+  const handleEdit = async (id, newText) => {
+    setError("");
+
+    if (newText.length < 5 || newText.length > 140) {
+      setError("Your message must be between 5 and 140 characters.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/thoughts/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: newText }),
+      });
+
+      const jsonRes = await res.json();
+
+      if (!res.ok || !jsonRes.success) {
+        throw new Error(jsonRes.message || "Failed to update message.");
+      }
+
+      const updated = jsonRes.response;
+
+      setMessages((prev) =>
+        prev.map((msg) => (msg._id === updated._id ? updated : msg)),
+      );
+    } catch (error) {
+      console.error("Error editing message:", error);
+      setError("Something went wrong updating the message.");
     }
   };
 
@@ -110,7 +169,12 @@ const App = () => {
           {loading ? (
             <p className="text-center text-gray-500">Loading messages...</p>
           ) : (
-            <MessageList messages={messages} onLike={handleLike} />
+            <MessageList
+              messages={messages}
+              onLike={handleLike}
+              onDelete={handleDelete}
+              onEdit={handleEdit}
+            />
           )}
         </div>
       </section>
