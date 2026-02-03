@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import CreateMessage from "./components/CreateMessage";
 import MessageList from "./components/MessageList";
+import SignupForm from "./components/SignupForm";
+import LoginForm from "./components/LoginForm";
 
 const API_URL = "https://happy-thoughts-api-11z5.onrender.com";
+
+//TODO: add signupLogin handlers and "auth-container"
 
 const App = () => {
   const [message, setMessage] = useState("");
