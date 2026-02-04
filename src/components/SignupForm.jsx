@@ -39,7 +39,7 @@ const SignupForm = ({ handleLogin }) => {
       handleLogin(resJson.response);
 
       //Reset form
-      e.target.reset();
+      setFormData({ username: "", email: "", password: "" });
     } catch (error) {
       setError(error.message);
       console.log("Signup error:", error);
@@ -48,49 +48,69 @@ const SignupForm = ({ handleLogin }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
   };
 
   return (
-    <form className="user-signup.form" onSubmit={handleSubmit}>
-      <h2>Sign Up</h2>
+    <form
+      className="border border-black bg-white/60 p-4 rounded-md shadow space-y-3"
+      onSubmit={handleSubmit}
+    >
+      <h2 className="text-xl font-bold">Sign Up</h2>
 
-      <div className="login-inputs">
-        <label>
-          Username:
+      <div className="space-y-3">
+        <label className="block">
+          <span className="block mb-1">Username</span>
           <input
+            className="w-full border border-black rounded px-3 py-2 bg-white"
             onChange={handleChange}
             type="text"
             name="username"
             value={formData.username}
+            autoComplete="username"
+            required
           />
         </label>
 
-        <label>
-          Email:
+        <label className="block">
+          <span className="block mb-1">Email</span>
           <input
+            className="w-full border border-black rounded px-3 py-2 bg-white"
             onChange={handleChange}
             type="email"
             name="email"
             value={formData.email}
+            autoComplete="email"
+            required
           />
         </label>
 
-        <label>
-          Password:
+        <label className="block">
+          <span className="block mb-1">Password</span>
           <input
+            className="w-full border border-black rounded px-3 py-2 bg-white"
             onChange={handleChange}
             type="password"
             name="password"
             value={formData.password}
+            autoComplete="new-password"
+            required
           />
         </label>
       </div>
 
-      <button type="submit">Sign Up</button>
-      {error && <p className="error-message">{error}</p>}
+      <button
+        type="submit"
+        className="w-full border border-black rounded px-3 py-2 bg-white hover:bg-gray-100 font-bold"
+      >
+        Sign Up
+      </button>
+
+      {error && (
+        <p className="bg-red-200 border border-red-500 p-2 rounded">{error}</p>
+      )}
     </form>
   );
 };
+
 export default SignupForm;

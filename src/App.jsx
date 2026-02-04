@@ -3,8 +3,7 @@ import CreateMessage from "./components/CreateMessage";
 import MessageList from "./components/MessageList";
 import SignupForm from "./components/SignupForm";
 import LoginForm from "./components/LoginForm";
-
-const API_URL = "https://happy-thoughts-api-11z5.onrender.com";
+import { API_BASE_URL } from "./constants";
 
 //TODO: add signupLogin handlers and "auth-container"
 
@@ -13,11 +12,25 @@ const App = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem("user");
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const handleLogin = (userData) => {
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem("user");
+  };
 
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const res = await fetch(`${API_URL}/thoughts?sort=createdAt`);
+        const res = await fetch(`${API_BASE_URL}/thoughts?sort=createdAt`);
         if (!res.ok) {
           throw new Error("Failed to fetch messages");
         }
@@ -48,10 +61,19 @@ const App = () => {
       setError("Your message must be between 5 and 140 characters.");
       return;
     }
+
+    if (!user?.accessToken) {
+      setError("You must be logged in to post a happy thought.");
+      return;
+    }
+
     try {
-      const res = await fetch(`${API_URL}/thoughts`, {
+      const res = await fetch(`${API_BASE_URL}/thoughts`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user?.accessToken}`,
+        },
         body: JSON.stringify({ message }),
       });
 
@@ -76,7 +98,7 @@ const App = () => {
 
   const handleLike = async (id) => {
     try {
-      const res = await fetch(`${API_URL}/thoughts/${id}/like`, {
+      const res = await fetch(`${API_BASE_URL}/thoughts/${id}/like`, {
         method: "PATCH",
       });
       const jsonRes = await res.json();
@@ -98,7 +120,7 @@ const App = () => {
 
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(`${API_URL}/thoughts/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/thoughts/${id}`, {
         method: "DELETE",
       });
       const jsonRes = await res.json();
@@ -122,7 +144,7 @@ const App = () => {
     }
 
     try {
-      const res = await fetch(`${API_URL}/thoughts/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/thoughts/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: newText }),
@@ -149,6 +171,25 @@ const App = () => {
     <main className="min-h-screen flex justify-center font-mono">
       <section className="w-full flex justify-center">
         <div className="w-full max-w-[900px] px-4 pt-8 space-y-10">
+          {!user ? (
+            <div className="grid gap-6 md:grid-cols-2">
+              <SignupForm handleLogin={handleLogin} />
+              <LoginForm handleLogin={handleLogin} />
+            </div>
+          ) : (
+            <div className="flex items-center justify-between border rounded-md p-3 bg-white/50">
+              <p className="text-sm">
+                Logged in as:
+                <span className="font-bold ">{user.username}</span>
+              </p>
+              <button
+                onClick={handleLogout}
+                className="border rounded px-3 py-1 hover:bg-gray-100"
+              >
+                Logout
+              </button>
+            </div>
+          )}
           <CreateMessage
             message={message}
             setMessage={setMessage}
