@@ -3,6 +3,7 @@ import { API_BASE_URL } from "../constants";
 
 const SignupForm = ({ handleLogin }) => {
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -12,6 +13,7 @@ const SignupForm = ({ handleLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setFieldErrors({});
 
     try {
       const response = await fetch(`${API_BASE_URL}/users/user-signup`, {
@@ -38,10 +40,20 @@ const SignupForm = ({ handleLogin }) => {
 
       handleLogin(resJson.response);
 
-      //Reset form
       setFormData({ username: "", email: "", password: "" });
     } catch (error) {
-      setError(error.message);
+      const message = error.message || "Signup failed";
+
+      if (message.toLowerCase().includes("email")) {
+        setFieldErrors({ email: message });
+      } else if (message.toLowerCase().includes("username")) {
+        setFieldErrors({ username: message });
+      } else if (message.toLowerCase().includes("password")) {
+        setFieldErrors({ password: message });
+      } else {
+        setError(message);
+      }
+
       console.log("Signup error:", error);
     }
   };
@@ -70,8 +82,10 @@ const SignupForm = ({ handleLogin }) => {
             autoComplete="username"
             required
           />
+          {fieldErrors.username && (
+            <p className="text-red-500 text-sm mt-1">{fieldErrors.username}</p>
+          )}
         </label>
-
         <label className="block">
           <span className="block mb-1">Email</span>
           <input
@@ -83,6 +97,9 @@ const SignupForm = ({ handleLogin }) => {
             autoComplete="email"
             required
           />
+          {fieldErrors.email && (
+            <p className="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
+          )}
         </label>
 
         <label className="block">
@@ -96,9 +113,11 @@ const SignupForm = ({ handleLogin }) => {
             autoComplete="new-password"
             required
           />
+          {fieldErrors.password && (
+            <p className="text-red-500 text-sm mt-1">{fieldErrors.password}</p>
+          )}
         </label>
       </div>
-
       <button
         type="submit"
         className="w-full border border-black rounded px-3 py-2 bg-white hover:bg-gray-100 font-bold"

@@ -7,6 +7,15 @@ const MessageCard = ({ message, onLike, onDelete, onEdit }) => {
 
   const isInvalid = draft.length < 5 || draft.length > 140;
 
+  const btnPink =
+    "bg-pink-400 hover:bg-pink-500 text-white font-bold px-3 py-1 rounded-full shadow transition disabled:opacity-50 disabled:cursor-not-allowed";
+
+  const btnNeutral =
+    "bg-white border border-black hover:bg-gray-100 text-black font-bold px-3 py-1 rounded-full shadow transition";
+
+  const btnDanger =
+    "bg-red-400 hover:bg-red-500 text-white font-bold px-3 py-1 rounded-full shadow transition";
+
   const handleSave = () => {
     if (isInvalid) return;
     onEdit(message._id, draft);
@@ -34,7 +43,10 @@ const MessageCard = ({ message, onLike, onDelete, onEdit }) => {
       )}
 
       <div className="flex justify-between items-center mt-2 text-sm text-gray-400">
-        <button onClick={() => onLike(message._id)} className="flex gap-2">
+        <button
+          onClick={() => onLike(message._id)}
+          className="flex gap-2 items-center bg-white/70 border border-black rounded-full px-3 py-1 shadow hover:bg-white transition"
+        >
           ❤️ x {message.hearts}
         </button>
 
@@ -43,7 +55,7 @@ const MessageCard = ({ message, onLike, onDelete, onEdit }) => {
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              className="text-blue-500"
+              className={btnNeutral}
             >
               Edit
             </button>
@@ -53,14 +65,14 @@ const MessageCard = ({ message, onLike, onDelete, onEdit }) => {
                 type="button"
                 onClick={handleSave}
                 disabled={isInvalid}
-                className="text-green-600"
+                className={btnPink}
               >
                 Save
               </button>
               <button
                 type="button"
                 onClick={handleCancel}
-                className="text-gray-500"
+                className={btnNeutral}
               >
                 Cancel
               </button>
@@ -70,7 +82,7 @@ const MessageCard = ({ message, onLike, onDelete, onEdit }) => {
           <button
             type="button"
             onClick={() => onDelete(message._id)}
-            className="text-red-500"
+            className={btnDanger}
           >
             Delete
           </button>

@@ -3,9 +3,8 @@ import CreateMessage from "./components/CreateMessage";
 import MessageList from "./components/MessageList";
 import SignupForm from "./components/SignupForm";
 import LoginForm from "./components/LoginForm";
-import { API_BASE_URL } from "./constants";
 
-//TODO: add signupLogin handlers and "auth-container"
+import { API_BASE_URL } from "./constants";
 
 const App = () => {
   const [message, setMessage] = useState("");
@@ -32,7 +31,7 @@ const App = () => {
       try {
         const res = await fetch(`${API_BASE_URL}/thoughts?sort=createdAt`);
         if (!res.ok) {
-          throw new Error("Failed to fetch messages");
+          throw new Error("Failed to fetch thought");
         }
 
         const jsonRes = await res.json();
@@ -44,7 +43,7 @@ const App = () => {
 
         setMessages(jsonRes.response);
       } catch (error) {
-        console.error("Error fetching messages:", error);
+        console.error("Error fetching thought:", error);
       } finally {
         setLoading(false);
       }
@@ -58,7 +57,7 @@ const App = () => {
     setError("");
 
     if (message.length < 5 || message.length > 140) {
-      setError("Your message must be between 5 and 140 characters.");
+      setError("Your thought must be between 5 and 140 characters.");
       return;
     }
 
@@ -89,7 +88,7 @@ const App = () => {
       setMessages((prev) => [newMessage, ...prev]);
       setMessage("");
     } catch (error) {
-      console.error("Error posting message:", error);
+      console.error("Error posting thought:", error);
       setError(
         "Something wen't wrong posting your happy thought. Please try again.",
       );
@@ -104,9 +103,9 @@ const App = () => {
       const jsonRes = await res.json();
 
       if (!res.ok || !jsonRes.success) {
-        throw new Error(jsonRes.message || "Failed to like the message.");
+        throw new Error(jsonRes.message || "Failed to like the thought.");
       }
-      const updatedMessage = jsonRes.response; //here is the thought with updated likes
+      const updatedMessage = jsonRes.response;
 
       setMessages((prev) =>
         prev.map((msg) =>
@@ -114,46 +113,65 @@ const App = () => {
         ),
       );
     } catch (error) {
-      console.error("Error liking message:", error);
+      console.error("Error liking thought:", error);
     }
   };
 
   const handleDelete = async (id) => {
+    setError("");
+
+    if (!user?.accessToken) {
+      setError("you must be logged in to delete a thought");
+      return;
+    }
+
     try {
       const res = await fetch(`${API_BASE_URL}/thoughts/${id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${user.accessToken}`,
+        },
       });
       const jsonRes = await res.json();
 
       if (!res.ok || !jsonRes.success) {
-        throw new Error(jsonRes.message || "Failed to delete the message.");
+        throw new Error(jsonRes.message || "Failed to delete the thought.");
       }
 
       setMessages((prev) => prev.filter((msg) => msg._id !== id));
     } catch (error) {
-      console.error("Error deleting message:", error);
+      console.error("Error deleting thought:", error);
+      setError("Something went wrong deleting the thought");
     }
   };
 
   const handleEdit = async (id, newText) => {
     setError("");
 
+    if (!user?.accessToken) {
+      setError("You must be logged in to edit a thought.");
+      return;
+    }
+
     if (newText.length < 5 || newText.length > 140) {
-      setError("Your message must be between 5 and 140 characters.");
+      setError("Your thought must be between 5 and 140 characters.");
       return;
     }
 
     try {
       const res = await fetch(`${API_BASE_URL}/thoughts/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user?.accessToken}`,
+        },
         body: JSON.stringify({ message: newText }),
       });
 
       const jsonRes = await res.json();
 
       if (!res.ok || !jsonRes.success) {
-        throw new Error(jsonRes.message || "Failed to update message.");
+        throw new Error(jsonRes.message || "Failed to update thought.");
       }
 
       const updated = jsonRes.response;
@@ -162,8 +180,8 @@ const App = () => {
         prev.map((msg) => (msg._id === updated._id ? updated : msg)),
       );
     } catch (error) {
-      console.error("Error editing message:", error);
-      setError("Something went wrong updating the message.");
+      console.error("Error editing thought:", error);
+      setError("Something went wrong updating the thought.");
     }
   };
 
@@ -184,7 +202,7 @@ const App = () => {
               </p>
               <button
                 onClick={handleLogout}
-                className="border rounded px-3 py-1 hover:bg-gray-100"
+                className="bg-pink-400 hover:bg-pink-500 text-white font-bold px-4 py-2 rounded-full shadow transition"
               >
                 Logout
               </button>
